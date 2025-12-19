@@ -1,98 +1,144 @@
+// React hooks used:
+// - useState: manage component state
+// - useEffect: run side effects (API calls on mount)
+// - useMemo: memoize derived data to avoid unnecessary recalculations
 import { useEffect, useMemo, useState } from "react";
+
+// Global styles for layout and UI
 import "./App.css";
+
+// Reusable UI components
 import StatusTag from "./components/StatusTag";
 import UpdateStatusModal from "./components/UpdateStatusModal";
 import AddStageModal from "./components/AddStageModal";
 import AddStepModal from "./components/AddStepModal";
 
-// App root component for the Mini Milestone Journey UI.
-// Manages fetching the journey, user interactions (add/delete/update),
-// and controls modal visibility for editing/adding items.
-
+// Hardcoded journey ID as per task requirements
 const JOURNEY_ID = "123";
 
+/**
+ * Root component for Mini Milestone Journey UI
+ * ------------------------------------------------
+ * Responsibilities:
+ * - Fetch journey data from API
+ * - Manage selected stage
+ * - Handle add/delete/update operations
+ * - Control modal visibility
+ * - Handle loading and error states
+ */
 export default function App() {
-  // Main data: current journey object and which stage is selected
+  /* ============================
+     CORE DATA STATE
+     ============================ */
+
+  // Stores the complete journey object returned by the API
   const [journey, setJourney] = useState(null);
+
+  // Tracks which stage is currently selected in the sidebar
   const [selectedStageId, setSelectedStageId] = useState(null);
 
-  // UI state: loading indicator and error messages from API calls
+  /* ============================
+     UI & FEEDBACK STATE
+     ============================ */
+
+  // Indicates whether journey data is being fetched
   const [loading, setLoading] = useState(true);
+
+  // Stores API error messages (if any)
   const [error, setError] = useState("");
 
-  // Modal state for updating a step (status)
-  const [modalOpen, setModalOpen] = useState(false);
-  const [activeStep, setActiveStep] = useState(null);
-
-  // Modal state for adding stages/steps
-  const [addStageOpen, setAddStageOpen] = useState(false);
-  const [addStepOpen, setAddStepOpen] = useState(false);
-
+  // Indicates ongoing actions like add/update/delete
+  // Used to disable buttons and show overlay spinner
   const [actionLoading, setActionLoading] = useState(false);
 
+  /* ============================
+     MODAL STATE
+     ============================ */
 
-// Delete a stage (and its steps) after user confirmation,
-// then refresh the journey and clear selection if necessary.
-async function deleteStage(stageId) {
-  if (!confirm("Delete this stage (and all its steps)?")) return;
+  // Controls Update Status modal visibility
+  const [modalOpen, setModalOpen] = useState(false);
 
-  setActionLoading(true);
-  try {
-    const res = await fetch(`/api/stages/${stageId}`, { method: "DELETE" });
-    if (!res.ok) throw new Error(`Delete stage failed (${res.status})`);
+  // Stores the step currently being edited
+  const [activeStep, setActiveStep] = useState(null);
 
-    if (selectedStageId === stageId) setSelectedStageId(null);
-    await fetchJourney();
-  } catch (e) {
-    alert(e.message || "Delete failed");
-  } finally {
-    setActionLoading(false);
-  }
-}
+  // Controls Add Stage modal
+  const [addStageOpen, setAddStageOpen] = useState(false);
 
-  
-  // Fetch the full journey from the API, set loading/error states,
-  // and ensure a default stage is selected if applicable.
+  // Controls Add Step modal
+  const [addStepOpen, setAddStepOpen] = useState(false);
+
+  /* ============================
+     API: FETCH JOURNEY
+     ============================ */
+
+  /**
+   * Fetches the full journey from backend
+   * - Handles loading & error states
+   * - Auto-selects the first stage if none is selected
+   */
   async function fetchJourney() {
     setLoading(true);
     setError("");
+
     try {
       const res = await fetch(`/api/journeys/${JOURNEY_ID}`);
       if (!res.ok) throw new Error(`API failed (${res.status})`);
+
       const data = await res.json();
       setJourney(data);
 
-      // Default select first stage
-      const stillExists = data.stages?.some(s => s.stage_id === selectedStageId);
-      if (!stillExists && data.stages?.length) setSelectedStageId(data.stages[0].stage_id);
+      // If previously selected stage no longer exists,
+      // fall back to selecting the first available stage
+      const stillExists = data.stages?.some(
+        (s) => s.stage_id === selectedStageId
+      );
+
+      if (!stillExists && data.stages?.length) {
+        setSelectedStageId(data.stages[0].stage_id);
+      }
     } catch (e) {
-      setError(e.message || "Failed to load");
+      setError(e.message || "Failed to load journey");
     } finally {
       setLoading(false);
     }
+  }
 
-  } 
+  // Fetch journey once when component mounts
+  useEffect(() => {
+    fetchJourney();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    // Load journey once on component mount
-    useEffect(() => {
-      fetchJourney();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+  /* ============================
+     DERIVED STATE
+     ============================ */
 
-  // Derived value: currently selected stage object
+  /**
+   * Memoized lookup for currently selected stage
+   * Avoids recalculating unless journey or selectedStageId changes
+   */
   const selectedStage = useMemo(() => {
     if (!journey || !selectedStageId) return null;
-    return journey.stages.find((s) => s.stage_id === selectedStageId) || null;
+    return journey.stages.find(
+      (s) => s.stage_id === selectedStageId
+    ) || null;
   }, [journey, selectedStageId]);
 
-  // Open the modal to update a step's status
+  /* ============================
+     STEP STATUS UPDATE
+     ============================ */
+
+  // Opens the update status modal for a selected step
   function openUpdateModal(step) {
     setActiveStep(step);
     setModalOpen(true);
   }
 
-  // Submit a status update for the active step via PATCH,
-  // then refresh journey and close modal on success.
+  /**
+   * Submits updated status for a step
+   * - PATCH request
+   * - Refreshes journey on success
+   */
   async function submitStatusUpdate(newStatus) {
     if (!activeStep) return;
 
@@ -110,11 +156,17 @@ async function deleteStage(stageId) {
       setActiveStep(null);
       await fetchJourney();
     } catch (e) {
-      alert(e.message || "Failed to update");
+      alert(e.message || "Failed to update step");
     } finally {
       setActionLoading(false);
     }
   }
+
+  /* ============================
+     STAGE OPERATIONS
+     ============================ */
+
+  // Adds a new stage to the journey
   async function addStage(stageName) {
     const name = (stageName || "").trim();
     if (!name) return alert("Stage name required");
@@ -128,6 +180,7 @@ async function deleteStage(stageId) {
       });
 
       if (!res.ok) throw new Error(`Add stage failed (${res.status})`);
+
       setAddStageOpen(false);
       await fetchJourney();
     } catch (e) {
@@ -137,6 +190,36 @@ async function deleteStage(stageId) {
     }
   }
 
+  // Deletes a stage (and its steps) after confirmation
+  async function deleteStage(stageId) {
+    if (!confirm("Delete this stage (and all its steps)?")) return;
+
+    setActionLoading(true);
+    try {
+      const res = await fetch(`/api/stages/${stageId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) throw new Error(`Delete stage failed (${res.status})`);
+
+      // Clear selection if deleted stage was active
+      if (selectedStageId === stageId) {
+        setSelectedStageId(null);
+      }
+
+      await fetchJourney();
+    } catch (e) {
+      alert(e.message || "Delete failed");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  /* ============================
+     STEP OPERATIONS
+     ============================ */
+
+  // Adds a step under the currently selected stage
   async function addStep(stepName, status) {
     const name = (stepName || "").trim();
     if (!name) return alert("Step name required");
@@ -150,6 +233,7 @@ async function deleteStage(stageId) {
       });
 
       if (!res.ok) throw new Error(`Add step failed (${res.status})`);
+
       setAddStepOpen(false);
       await fetchJourney();
     } catch (e) {
@@ -159,13 +243,18 @@ async function deleteStage(stageId) {
     }
   }
 
+  // Deletes a step after confirmation
   async function deleteStep(stepId) {
     if (!confirm("Delete this step?")) return;
 
     setActionLoading(true);
     try {
-      const res = await fetch(`/api/steps/${stepId}`, { method: "DELETE" });
+      const res = await fetch(`/api/steps/${stepId}`, {
+        method: "DELETE",
+      });
+
       if (!res.ok) throw new Error("Delete failed");
+
       await fetchJourney();
     } catch (e) {
       alert(e.message);
@@ -174,7 +263,9 @@ async function deleteStage(stageId) {
     }
   }
 
-
+  /* ============================
+     UI RENDER
+     ============================ */
 
 
   return (
