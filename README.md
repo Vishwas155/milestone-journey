@@ -1,87 +1,88 @@
-# Mini-Milestone-Journey-Management-System
-This project is a full-stack web application that allows users to manage a journey consisting of stages and steps (tasks). Each step has a status, and completion percentages are calculated dynamically at the stage and journey levels.
+# Mini Milestone Journey Management System
 
-
-Instructions 
-
-```md
-# Mini Milestone Journey UI (React + FastAPI)
-
-A full-stack mini project that visualizes a **Journey → Stages → Steps** workflow with:
-- Left sidebar: stages + mini progress bars + selection highlight
-- Right panel: stage details + steps list + status tags
-- Update step status via modal (PATCH)
-- Add/Delete **Stages** and **Steps**
-- Auto-calculated completion percentages
-- Loading animations for slow API responses
-- Error handling (API failures, empty stages)
+A full-stack web application that allows users to manage a **Journey → Stages → Steps (Tasks)** workflow.
+Each step has a status, and **completion percentages are calculated dynamically** at both stage and journey levels.
 
 ---
 
-## Demo Features
+## ✨ Features
 
-✅ Load journey from API: `GET /api/journeys/123`  
-✅ Select stages from sidebar  
-✅ Add/Delete Stage  
-✅ Add/Delete Step  
-✅ Update Step Status (NOT_STARTED / IN_PROGRESS / COMPLETED)  
-✅ Auto progress calculation (stage + journey)  
-✅ Loading spinners (page load + actions)  
-✅ Edge cases handled (empty steps → “No tasks yet”)
-
----
-
-## Tech Stack
-
-**Frontend**
-- React (Vite)
-- JavaScript
-- CSS
-
-**Backend**
-- Python
-- FastAPI
-- Uvicorn
+* View a journey with multiple stages and steps
+* Sidebar with stages + mini progress bars
+* Add / delete stages
+* Add / delete steps
+* Update step status via modal
+* Automatic progress calculation
+* Loading animations for slow API responses
+* Error handling and empty-state handling
 
 ---
 
-## Project Structure
+## 🧰 Tech Stack
+
+### Frontend
+
+* React (Vite)
+* JavaScript
+* CSS
+
+### Backend
+
+* Python
+* FastAPI
+* Uvicorn
+
+---
+
+## 📁 Final Project Structure
+
+After full setup, your project will look like this:
 
 ```
-
 milestone-journey/
-backend/
-main.py
-.venv/               (created locally)
-frontend/
-package.json
-vite.config.js
-src/
-App.jsx
-App.css
-components/
-StatusTag.jsx
-UpdateStatusModal.jsx
-AddStageModal.jsx
-AddStepModal.jsx
-
-````
+│
+├── backend/
+│   ├── main.py
+│   └── .venv/               # Python virtual environment (auto-created)
+│
+└── frontend/
+    ├── package.json         # Frontend dependencies
+    ├── vite.config.js       # Vite dev server + proxy config
+    ├── node_modules/        # Auto-installed dependencies
+    └── src/
+        ├── App.jsx
+        ├── App.css
+        └── components/
+            ├── StatusTag.jsx
+            ├── UpdateStatusModal.jsx
+            ├── AddStageModal.jsx
+            └── AddStepModal.jsx
+```
 
 ---
 
-## Prerequisites
+## 🧩 Prerequisites (Install Once)
 
-### 1) Install Node.js (LTS)
-- Install **Node.js LTS** (recommended)
-- Verify:
+### 1️⃣ Install Node.js (for React)
+
+Download **Node.js LTS** from:
+👉 [https://nodejs.org](https://nodejs.org)
+
+Verify installation:
+
 ```powershell
 node -v
 npm -v
-````
+```
 
-### 2) Install Python (3.10+ recommended)
+---
 
-Verify:
+### 2️⃣ Install Python (for Backend)
+
+Download Python **3.10 or above** from:
+👉 [https://www.python.org/downloads/](https://www.python.org/downloads/)
+
+Verify installation:
 
 ```powershell
 python --version
@@ -89,81 +90,134 @@ python --version
 
 ---
 
-## Setup & Run (Windows / PowerShell)
+## 🚀 Step-by-Step Setup (From Scratch)
 
-> You need TWO terminals: one for backend, one for frontend.
+You need **two terminals**:
+
+* Terminal 1 → Backend
+* Terminal 2 → Frontend
 
 ---
 
-## 1) Backend Setup (FastAPI)
+## 🔹 Step 1: Backend Setup (FastAPI)
 
-### Open PowerShell and go to backend folder
+### 1. Go to backend folder
 
 ```powershell
-cd C:\path\to\milestone-journey\backend
+cd milestone-journey\backend
 ```
 
-### Create & activate virtual environment
+### 2. Create Python virtual environment
 
 ```powershell
 python -m venv .venv
+```
+
+This creates a folder:
+
+```
+backend/.venv/
+```
+
+### 3. Activate virtual environment
+
+```powershell
 .venv\Scripts\Activate.ps1
 ```
 
-### Install dependencies
+### 4. Install backend dependencies
 
 ```powershell
 pip install fastapi uvicorn "fastapi[all]"
 ```
 
-### Run backend (IMPORTANT: IPv4 host)
+### 5. Run backend server
 
 ```powershell
-uvicorn main:app --reload --host 127.0.0.1 --port 8000
+uvicorn main:app --host 127.0.0.1 --port 8000
 ```
 
-### Test backend in browser
+You should see:
 
-Open:
+```
+Uvicorn running on http://127.0.0.1:8000
+```
+
+### 6. Test backend
+
+Open in browser:
 
 * [http://127.0.0.1:8000/api/journeys/123](http://127.0.0.1:8000/api/journeys/123)
-
-You should see JSON.
+* [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 ---
 
-## 2) Frontend Setup (React)
+## 🔹 Step 2: Frontend Setup (React + Vite)
 
-### Open a second PowerShell window and go to frontend folder
+### 1. Go to project root
 
 ```powershell
-cd C:\path\to\milestone-journey\frontend
+cd milestone-journey
 ```
 
-### Install dependencies
+### 2. Create React app using Vite (only once)
+
+```powershell
+npm create vite@latest frontend
+```
+
+Choose:
+
+* Framework → **React**
+* Variant → **JavaScript**
+
+This command creates:
+
+```
+frontend/
+├── package.json
+├── vite.config.js
+├── index.html
+└── src/
+```
+
+---
+
+### 3. Go to frontend folder
+
+```powershell
+cd frontend
+```
+
+### 4. Install frontend dependencies
 
 ```powershell
 npm install
 ```
 
-### Start frontend
+This creates:
+
+```
+frontend/node_modules/
+```
+
+---
+
+### 5. Start frontend
 
 ```powershell
 npm run dev
 ```
 
-Open the local URL shown (usually):
+Open:
 
 * [http://localhost:5173](http://localhost:5173)
 
 ---
 
-## 3) Vite Proxy Setup (Frontend → Backend)
+## 🔹 Step 3: Connect Frontend to Backend (Vite Proxy)
 
-To call backend APIs using relative URLs like `/api/journeys/123`,
-Vite proxy forwards `/api/*` → `http://127.0.0.1:8000`.
-
-### `frontend/vite.config.js`
+Edit `frontend/vite.config.js`:
 
 ```js
 import { defineConfig } from "vite";
@@ -182,22 +236,24 @@ export default defineConfig({
 });
 ```
 
-After changing this file, restart Vite:
+Restart frontend:
 
-* Stop: `Ctrl + C`
-* Run again: `npm run dev`
+```powershell
+Ctrl + C
+npm run dev
+```
 
-### Proxy test (important)
+### Proxy Test
 
-Open in browser:
+Open:
 
 * [http://localhost:5173/api/journeys/123](http://localhost:5173/api/journeys/123)
 
-If you see JSON, frontend is connected.
+If JSON appears → frontend & backend are connected ✅
 
 ---
 
-## API Documentation
+## 📡 API Endpoints
 
 ### Get Journey
 
@@ -240,42 +296,79 @@ DELETE /api/steps/{step_id}
 
 ---
 
-## Completion Percentage Logic
+## 📊 Completion Percentage Logic
 
-Statuses have weights:
+| Status      | Weight |
+| ----------- | ------ |
+| NOT_STARTED | 0.0    |
+| IN_PROGRESS | 0.5    |
+| COMPLETED   | 1.0    |
 
-* NOT_STARTED → 0.0
-* IN_PROGRESS → 0.5
-* COMPLETED → 1.0
-
-Stage completion:
+**Stage Completion**
 
 ```
-(sum(step_weights) / total_steps) * 100
+(sum of step weights / number of steps) × 100
 ```
 
-Journey completion is calculated across all steps in all stages.
+**Journey Completion**
 
-If a stage has 0 steps → 0%.
+```
+Calculated across all steps in all stages
+```
+
+If a stage has **0 steps → 0% completion**
 
 ---
 
-## UI Notes
+## 🎨 UI & UX Behavior
 
-### Loading Animations
+### Loading States
 
-* Page loading spinner: shown while the journey is being fetched
-* Action loading overlay: shown while add/delete/update API calls run
+* Page loading spinner when journey is fetched
+* Overlay spinner during add/update/delete actions
 
 ### Edge Cases
 
-* API failure → visible error message + Retry button
-* Stage with zero steps → “No tasks yet”
+* API failure → error message + retry
+* Empty stage → “No tasks yet”
 
 ---
 
-## License
+## 🔁 Restarting the Project (Daily Use)
+
+After system restart:
+
+### Terminal 1 (Backend)
+
+```powershell
+cd backend
+.venv\Scripts\Activate.ps1
+uvicorn main:app --host 127.0.0.1 --port 8000
+```
+
+### Terminal 2 (Frontend)
+
+```powershell
+cd frontend
+npm run dev
+```
+
+---
+
+## 📄 License
 
 MIT
 
-```
+---
+
+## 🎯 Conclusion
+
+This project demonstrates:
+
+* Clean full-stack architecture
+* RESTful API design
+* Dynamic progress calculation
+* Proper state and loading management
+* Real-world CRUD workflow
+
+---
